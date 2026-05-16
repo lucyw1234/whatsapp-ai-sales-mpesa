@@ -1,0 +1,534 @@
+{
+  "name": "Farm Fresh Sales Workflow.",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {
+          "messageStatusUpdates": [
+            "all"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -32
+      ],
+      "id": "a9593522-a826-4c0b-a53a-27d58ca1aff2",
+      "name": "WhatsApp Trigger",
+      "webhookId": "44084c5e-c45b-45d5-ae58-b88afc7989d9",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "F6559jsLznwIB9qM",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are Sophia, the friendly top sales agent for Farm Fresh Agro Traders in Pipeline, Nairobi. We sell wholesale and retail cereals, spices, herbs, and bundles.\n\nTone: Warm, fast, big-sister Kenyan vibe. Speak naturally (\"Sasa\", \"Bro\", \"Aki\", \"Tuko na stock\"). Use short, punchy sentences.\n\nRules for Execution:\n\nAlways check real stock and prices using the Check Product Stock tool before quoting. Never guess.\n\nRecommend bundles to increase order value.\n\nWhen a customer is ready to buy: Summarize the order, calculate the exact total, and ask: \"Are you ready to pay Ksh [Amount] via M-Pesa to confirm? Reply Yes.\"\n\nONLY after they confirm: Ask for their Safaricom phone number.\n\nExecute the Create_Order tool to log the order and get the Order ID.\n\nImmediately execute the trigger_mpesa_stk tool. You must pass the customer's phone number, the exact amount, and the Order ID.\n\nAfter triggering the tool, tell the customer: \"Nimetuma prompt ya M-Pesa. Weka PIN to complete your order. I will confirm here once received! 🔥\"\n\nIf a request is too complex, offer to connect them directly to the owner.\n\nData Formatting Rule:\nIf the customer provides a phone number starting with \"0\" (e.g., 0712345678), you MUST change it to start with \"254\" (e.g., 254712345678) BEFORE executing the trigger_mpesa_stk tool.\n\nExecution Rule: When calling the M-Pesa tool, ALWAYS invent a random 4-digit order_id (e.g., ORD-4829). Never leave it blank\nEscalation Rule: If a customer asks for wholesale pricing, complains, becomes frustrated, or asks a question completely outside your product knowledge, DO NOT attempt to answer. You must immediately reply with this exact sentence: \"Let me connect you directly to the store manager to sort this out. Please hold on for just a moment"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        216,
+        -32
+      ],
+      "id": "a95df3a2-5905-437b-9d68-f17f9e144346",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        192
+      ],
+      "id": "521208c4-c26e-4d4c-8637-363c1f591bde",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "sKOwdGjgu66nytWu",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.contacts[0].wa_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        192
+      ],
+      "id": "2b3c9b1e-dc44-40d0-8ce8-675d952de839",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=1057459487456755",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        64
+      ],
+      "id": "7471b895-689b-4d60-9ebe-e4c435e070f8",
+      "name": "Send message",
+      "webhookId": "eb177f0d-9a35-4308-bf4a-40701394c391",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "fePU6mok3fFki8hi",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o",
+          "mode": "list",
+          "cachedResultName": "FARM FRESH CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 816279346,
+          "mode": "list",
+          "cachedResultName": "Products Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o/edit#gid=816279346"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        192
+      ],
+      "id": "04323b80-6f23-4abf-a255-d0f6ea119bca",
+      "name": "Check Product Stock",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "njUtEq4BnWc3pT9l",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Logs the order to the database. Requires phone, items, and total (provide total as a pure number, no commas).",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o",
+          "mode": "list",
+          "cachedResultName": "FARM FRESH CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 574142804,
+          "mode": "list",
+          "cachedResultName": "Orders Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BwCruRk41Pe8qPzAmNc85GVSDDZD_vYWj31wBqtYZ5o/edit#gid=574142804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp ": "={{ $now }}",
+            " Customers Name": "=",
+            "Customer Phone": "={{ $json.phone }}",
+            "Status (Pending/Paid/Cancelled)": "pending",
+            " Items (JSON or text) ": "={{ $json.items }}",
+            " Total": "={{ String($json.total) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp ",
+              "displayName": "Timestamp ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Phone",
+              "displayName": "Customer Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Customers Name",
+              "displayName": " Customers Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Items (JSON or text) ",
+              "displayName": " Items (JSON or text) ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Total",
+              "displayName": " Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " M-Pesa Ref ",
+              "displayName": " M-Pesa Ref ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status (Pending/Paid/Cancelled)",
+              "displayName": "Status (Pending/Paid/Cancelled)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -352,
+        296
+      ],
+      "id": "694a0346-588d-4ada-915b-f77ea820cc75",
+      "name": "Create_Order",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "njUtEq4BnWc3pT9l",
+          "name": "Google Sheets OAuth2 API"
+        }
+      },
+      "notes": "Save new customer order. Use when customer confirms YES. Parameters: items (text), total (number)"
+    },
+    {
+      "parameters": {
+        "description": "Triggers M-Pesa payment. Requires 3 parameters: phone_number (convert to 254 format, no spaces), amount (pure number, no commas), and order_id (invent a random ID like FF-8291).",
+        "workflowId": {
+          "__rl": true,
+          "value": "l7aDaxoctOCswKxz",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/l7aDaxoctOCswKxz",
+          "cachedResultName": "My Sub-Workflow 1"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "amount": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('amount', `Total amount, pure number, no commas`, 'number') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', `Safaricom number in 254 format`, 'string') }}",
+            "order_id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('order_id', `Random 4-digit ID like FF-1234`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        192
+      ],
+      "id": "5b7688c1-78a5-4c31-9d5f-bc8e6da8812c",
+      "name": "trigger_mpesa_stk"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ffd5395-aa5a-412d-a8bc-e8daedb585ee",
+              "leftValue": "={{ $json.messages[0].text.body }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "aa4a789a-9809-4767-bb1d-a3e67e552e01",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7569eaba-aae8-4ea8-9a54-9382ef2f7a0c",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "store manager",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        -32
+      ],
+      "id": "01a96880-ad87-4ea9-a596-d02555d85f36",
+      "name": "Check for Handoff"
+    },
+    {
+      "parameters": {
+        "chatId": "6830648330",
+        "text": "=🚨 *HUMAN REQUIRED* 🚨\n\nA customer needs manual assistance. The AI has paused.\n*Customer Phone:*{{ $('WhatsApp Trigger').item.json.messages[0].from }}\n\nPlease open the WhatsApp Business app and reply to them directly.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        -128
+      ],
+      "id": "df3596ca-7315-468a-a6d0-fff9b7145ae8",
+      "name": "Send a text message",
+      "webhookId": "71f29971-2af7-4290-8b9d-e717053a9b8f",
+      "credentials": {
+        "telegramApi": {
+          "id": "OggkNWhaHuv2O7mI",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Check for Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Product Stock": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create_Order": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "trigger_mpesa_stk": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Handoff": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "TYDSbJjKNdMc9cCu",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "cd0d2cef-9b88-437f-8200-893c31af1e07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09d7fee08bae2e10f6c3884ff429d54c72c2f5e577533c7824a3f422f9c6ea00"
+  },
+  "id": "mNrv3N4Ure2YhmE9",
+  "tags": []
+}
