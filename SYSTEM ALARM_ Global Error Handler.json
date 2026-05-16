@@ -1,0 +1,64 @@
+{
+  "name": "SYSTEM ALARM: Global Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ca113d53-29e7-444b-a7b2-da82dd4ee2af",
+      "name": "SYSTEM ALARM: Global Error Handler"
+    },
+    {
+      "parameters": {
+        "chatId": "6830648330",
+        "text": "=🚨 *SYSTEM ALERT: WORKFLOW CRASH* 🚨\n\n*Workflow:* {{ $json.workflow.name }}\n*Failed Node:* {{ $json.execution.lastNodeExecuted }}\n*Error Details:* {{ $json.execution.error.message }}\n\nPlease check the n8n dashboard immediately.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cce6da0d-c222-4470-a7df-a28a066c7629",
+      "name": "Send a text message",
+      "webhookId": "c83a7d35-003e-442b-8cb6-e85e1d86763a",
+      "credentials": {
+        "telegramApi": {
+          "id": "OggkNWhaHuv2O7mI",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "SYSTEM ALARM: Global Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d5ff2462-c99c-4d78-b3b9-07533d911c9f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09d7fee08bae2e10f6c3884ff429d54c72c2f5e577533c7824a3f422f9c6ea00"
+  },
+  "id": "TYDSbJjKNdMc9cCu",
+  "tags": []
+}
