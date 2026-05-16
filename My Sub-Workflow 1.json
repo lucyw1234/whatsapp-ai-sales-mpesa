@@ -1,0 +1,129 @@
+{
+  "name": "My Sub-Workflow 1",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "phone_number"
+            },
+            {
+              "name": "amount",
+              "type": "number"
+            },
+            {
+              "name": "order_id"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "businessShortCode": "174379",
+        "amount": "={{ ($json.amount || $json.total || '').toString().replace(/,/g, '').replace(/Ksh/gi, '').trim() }}",
+        "phoneNumber": "={{ ($json.phone_number || $json.phone || '').toString().replace(/^0/, '254').replace(/\\s+/g, '') }}",
+        "callbackUrl": "https://lucynjuguna.app.n8n.cloud/webhook-test/d5067488-5bd3-4b27-af76-a1ec72322afe",
+        "accountReference": "={{ $json.order_id }}",
+        "transactionDesc": "FarmFresh"
+      },
+      "type": "n8n-nodes-mpesa-daraja.mpesa",
+      "typeVersion": 1,
+      "position": [
+        480,
+        352
+      ],
+      "id": "194707a6-ac1b-4b2d-915d-e48d8ae72ef4",
+      "name": "Initiate STK Push",
+      "credentials": {
+        "mpesaApi": {
+          "id": "7FHMGpx9cFZQXaD9",
+          "name": "M-Pesa account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ffde113-360e-49a5-a95b-bfabdaeb5a36",
+              "name": "Success ",
+              "value": "STK push sent successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        352
+      ],
+      "id": "7fbd8db2-af2a-4e36-ab46-fcbca967b43a",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "phone_number": "254745436252",
+          "amount": 1,
+          "order_id": "TEST-01"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Initiate STK Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initiate STK Push": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "TYDSbJjKNdMc9cCu",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "4b0182f7-64c4-438f-8530-8df150b9c272",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09d7fee08bae2e10f6c3884ff429d54c72c2f5e577533c7824a3f422f9c6ea00"
+  },
+  "id": "l7aDaxoctOCswKxz",
+  "tags": []
+}
